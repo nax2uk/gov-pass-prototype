@@ -1,6 +1,8 @@
 ---
 applications:
 - name: gov-uk-prototype
+  services:
+  - pg-skills-for-care
   command: node start.js
   memory: 256M
   buildpacks:
