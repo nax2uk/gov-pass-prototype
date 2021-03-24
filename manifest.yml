@@ -1,0 +1,7 @@
+---
+applications:
+- name: gov-uk-prototype
+  command: node start.js
+  memory: 256M
+  buildpacks:
+  - https://github.com/cloudfoundry/nodejs-buildpack
