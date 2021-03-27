@@ -1,15 +1,6 @@
 // Core dependencies
 const path = require('path')
 const fs = require('fs')
-const cfenv = require("cfenv");
-const pg = require('pg');
-
-const appEnv = cfenv.getAppEnv();
-const connectionString = appEnv.getServiceURL("pg-skills-for-care");
-console.log(connectionString);
-const client = new pg.Client(connectionString);
-client.ssl = true;
-client.connect();
 
 checkFiles()
 

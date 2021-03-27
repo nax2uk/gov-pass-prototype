@@ -6,6 +6,7 @@ const browserSync = require('browser-sync')
 const server = require('./server.js')
 const config = require('./app/config.js')
 const utils = require('./lib/utils.js')
+const appEnv = require("cfenv").getAppEnv()
 
 // Set up configuration variables
 var useBrowserSync = config.useBrowserSync.toLowerCase()
@@ -14,7 +15,9 @@ var env = (process.env.NODE_ENV || 'development').toLowerCase()
 utils.findAvailablePort(server, function (port) {
   console.log('Listening on port ' + port + '   url: http://localhost:' + port)
   if (env === 'production' || useBrowserSync === 'false') {
-    server.listen(port)
+    server.listen(appEnv.port, appEnv.bind, () => {
+      console.log(`Example app listening at http://localhost:${appEnv.port}`)
+    })
   } else {
     server.listen(port - 50, function () {
       browserSync({
