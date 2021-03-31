@@ -26,6 +26,11 @@ module.exports = {
   useHttps: 'true',
 
   // Enable or disable Browser Sync
-  useBrowserSync: 'true'
+  useBrowserSync: 'true',
+
+  cognito: {
+    userPoolId: "eu-west-2_Vz8WCqygj",
+    clientId: "qofc7hi9bmcs1sqr13au72e35"
+  }
 
 }

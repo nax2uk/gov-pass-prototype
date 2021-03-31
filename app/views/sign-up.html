@@ -1,0 +1,50 @@
+
+{% extends "layout.html" %}
+
+{% block pageTitle %}
+  Spiking GOV.UK PAAS with PostgresQL DB
+{% endblock %}
+
+{% block beforeContent %}
+  {% include "includes/breadcrumb_examples.html" %}
+{% endblock %}
+
+{% block content %}
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-full">
+
+      <h1 class="govuk-heading-xl">Spiking AWS Cognito</h1>
+      <p> This is a spike for AWS Cognito </p>
+    </div>
+  </div>
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+       <form action="/sign-up" method="post" novalidate>
+            <h2 class="govuk-heading-m">Add sign up details</h2>
+            <div class="govuk-form-group">
+                <label class="govuk-label" for="email">
+                    Email
+                </label>
+                <input class="govuk-input govuk-!-width-two-thirds" id="email" name="email" type="text" value="{{ email }}">
+            </div>
+             <div class="govuk-form-group">
+                <label class="govuk-label" for="password">
+                    Password
+                </label>
+                <input class="govuk-input govuk-!-width-two-thirds" id="password" name="password" type="password" value="{{ password }}">
+            </div>
+             <div class="govuk-form-group">
+                <label class="govuk-label" for="confirm_password">
+                    Confirm Password
+                </label>
+                <input class="govuk-input govuk-!-width-two-thirds" id="confirm_password" name="confirm_password" type="password" value="{{ confirm_password }}">
+            </div>
+            <button class="govuk-button" data-module="govuk-button">
+                Sign Up
+            </button>
+        </form>
+    </div>
+  </div>
+
+{% endblock %}
