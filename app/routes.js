@@ -11,12 +11,13 @@ const poolData = {
   ClientId: config.cognito.clientId
 };
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-const AWS = require('aws-sdk');
-AWS.config.region = config.cognito.region; // Region
-AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-    IdentityPoolId: config.cognito.identityPoolId,
-});
 
+const AWS = require('aws-sdk');
+AWS.config.update({
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  region: process.env.AWS_DEFAULT_REGION,
+});
 
 // db
 // .connect()
@@ -51,23 +52,13 @@ router.post("/sign-up", function (req, res) {
     Value: email
   };
 
-  // const emailAttribute = new AmazonCognitoIdentity.CognitoUserAttribute(emailData);
-
-  // userPool.signUp(email, password, [emailAttribute], null, (err, data) => {
-  //   if (err) {
-  //     return console.error(err)
-  //   }
-  //   res.send(data.user);
-  // });
-
   let params = {
     ClientId: poolData.ClientId,
     Password: password,
-   
     Username: email,
- 
     UserAttributes: [emailData]
   };
+
   let CognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
   CognitoIdentityServiceProvider.signUp(params, (err, data) => {
     if (err) {
@@ -75,6 +66,7 @@ router.post("/sign-up", function (req, res) {
     }
     else {
       console.log(JSON.stringify(data));
+
       params = {
         GroupName: 'Member',
         UserPoolId: config.cognito.userPoolId,
