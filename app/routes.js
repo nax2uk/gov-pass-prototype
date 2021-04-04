@@ -1,37 +1,42 @@
 const express = require('express');
 const router = express.Router();
 const config = require('./config');
-const pg = require('pg');
-const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 
+const pg = require('pg');
+// const db = new pg.Client({ connectionString:process.env.DATABASE_URL, ssl: true });
+
+const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const poolData = {
   UserPoolId: config.cognito.userPoolId,
   ClientId: config.cognito.clientId
 };
-
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
+const AWS = require('aws-sdk');
+AWS.config.region = config.cognito.region; // Region
+AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: config.cognito.identityPoolId,
+});
 
-const db = new pg.Client({ connectionString:process.env.DATABASE_URL, ssl: true });
 
-db
-.connect()
-.then(() => console.log('connected'))
-.catch(err => console.error('connection error', err.stack));
+// db
+// .connect()
+// .then(() => console.log('connected'))
+// .catch(err => console.error('connection error', err.stack));
 
 /* home endpoint */
 router.get('/', function(req, res) {
-    db
-    .query('SELECT * FROM public.register')
-    .then(result => res.render('index', { 'registers': result.rows }))
-    .catch(error => console.error(error.stack));
+    // db
+    // .query('SELECT * FROM public.register')
+    // .then(result => res.render('index', { 'registers': result.rows }))
+    // .catch(error => console.error(error.stack));
 });
 
 router.post("/", function(req, res){
   const { first_name, last_name, email } = req.body;
-  db
-  .query(`INSERT INTO public.register (first_name, last_name, email) VALUES ($1, $2, $3)`, [first_name, last_name, email])
-  .then(() => res.redirect("/"))
-  .catch(err => console.error(err.stack));
+  // db
+  // .query(`INSERT INTO public.register (first_name, last_name, email) VALUES ($1, $2, $3)`, [first_name, last_name, email])
+  // .then(() => res.redirect("/"))
+  // .catch(err => console.error(err.stack));
 })
 
 /* sign-up endpoint */
@@ -46,13 +51,40 @@ router.post("/sign-up", function (req, res) {
     Value: email
   };
 
-  const emailAttribute = new AmazonCognitoIdentity.CognitoUserAttribute(emailData);
+  // const emailAttribute = new AmazonCognitoIdentity.CognitoUserAttribute(emailData);
 
-  userPool.signUp(email, password, [emailAttribute], null, (err, data) => {
+  // userPool.signUp(email, password, [emailAttribute], null, (err, data) => {
+  //   if (err) {
+  //     return console.error(err)
+  //   }
+  //   res.send(data.user);
+  // });
+
+  let params = {
+    ClientId: poolData.ClientId,
+    Password: password,
+   
+    Username: email,
+ 
+    UserAttributes: [emailData]
+  };
+  let CognitoIdentityServiceProvider = new AWS.CognitoIdentityServiceProvider();
+  CognitoIdentityServiceProvider.signUp(params, (err, data) => {
     if (err) {
-      return console.error(err)
+        console.log(err, err.stack);
     }
-    res.send(data.user);
+    else {
+      console.log(JSON.stringify(data));
+      params = {
+        GroupName: 'Member',
+        UserPoolId: config.cognito.userPoolId,
+        Username: email,
+      }
+      CognitoIdentityServiceProvider.adminAddUserToGroup(params, (err, data) => {
+        if (err) console.log(err, err.stack);
+        else res.send(JSON.stringify(data));
+      })
+    }
   })
 })
 
