@@ -11,7 +11,7 @@ const poolData = {
   ClientId: config.cognito.clientId
 };
 const userPool = new AmazonCognitoIdentity.CognitoUserPool(poolData);
-
+const identityPoolId = config.cognito.identityPoolId;
 const AWS = require('aws-sdk');
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -24,6 +24,22 @@ AWS.config.update({
 // .then(() => console.log('connected'))
 // .catch(err => console.error('connection error', err.stack));
 
+const createCredentials = (idToken) => {
+  AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+    IdentityPoolId: identityPoolId,
+    Logins: {
+      'cognito-idp.eu-west-2.amazonaws.com/eu-west-2_8HdZ7t0lh': idToken
+    }
+  });
+  AWS.config.credentials.refresh((error) => {
+    if (error) {
+      console.error(error)
+    }
+    else {
+      console.log('successfully logged in');
+    }
+  })
+}
 /* home endpoint */
 router.get('/', function(req, res) {
     // db
@@ -93,17 +109,36 @@ router.post("/login", function(req, res){
     Pool: userPool
   }
 
-  const cognitoUser = new AmazonCognitoIdentity.CognitoUser(userDetails);
+  let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userDetails);
 
-  req.session['login-errors'] = [];
+
   cognitoUser.authenticateUser(authenticationDetails, {
     onSuccess: data => {
       console.log(data);
+      createCredentials(data.getIdToken().getJwtToken());
       res.redirect('/dashboard');
     },
     onFailure: err => {
-      console.error(err)
-      req.session['login-errors'].push(err.message);
+      if (err.message == '200') {
+        cognitoUser = userPool.getCurrentUser();
+        if (cognitoUser != null) {
+          cognitoUser.getSession((err, data) => {
+            if(err) {
+              console.error(err);
+            }
+            if (data) {
+              createCredentials(result.getIdToken().getJwtToken());
+              console.log("Signed to CognitoID in successfully");
+            }
+          })
+        }
+        else {
+          console.error(err);
+        }
+      }
+      else {
+        console.error(err)
+      }
       res.redirect('/sign-up');
     }
   })
