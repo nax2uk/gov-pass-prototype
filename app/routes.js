@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const config = require('./config');
-//const pg = require('pg');
-//const db = new pg.Client({ connectionString:process.env.DATABASE_URL, ssl: true });
 const db = require("../db/connection");
 
-console.log(`NODE_ENV is ${process.env.NODE_ENV}`);
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const poolData = {
   UserPoolId: config.cognito.userPoolId,
@@ -20,10 +17,6 @@ AWS.config.update({
   region: process.env.AWS_DEFAULT_REGION,
 });
 let cognitoUser, username;
-// db
-// .connect()
-// .then(() => console.log('connected'))
-// .catch(err => console.error('connection error', err.stack));
 
 const createCredentials = (idToken) => {
   AWS.config.credentials = new AWS.CognitoIdentityCredentials({

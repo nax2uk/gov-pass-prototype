@@ -5,7 +5,7 @@ exports.up = function(knex) {
       usersTable.string('first_name').notNullable();
       usersTable.string('last_name').notNullable();
       usersTable.text('email').notNullable().unique();
-      usersTable.timestamp('joined_at').defaultTo(knex.fn.now());
+      usersTable.timestamp('joined_at').notNullable().defaultTo(knex.fn.now());
   }))
 };
 

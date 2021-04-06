@@ -1,4 +1,3 @@
-require
 const ENV = process.env.NODE_ENV || "development";
 
 const baseConfig = {
@@ -29,7 +28,9 @@ const customConfig = {
   production: {
     connection: {
       connectionString: process.env.DATABASE_URL,
-      ssl: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     },
   },
 };
