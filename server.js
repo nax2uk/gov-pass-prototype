@@ -10,20 +10,9 @@ const nunjucks = require('nunjucks')
 const sessionInCookie = require('client-sessions')
 const sessionInMemory = require('express-session')
 
-// const cfenv = require("cfenv");
-// const pg = require('pg');
 
 // Run before other code to make sure variables from .env are available
 dotenv.config()
-
-// const appEnv = cfenv.getAppEnv();
-// const connectionString = appEnv.getServiceURL("pg-skills-for-care");
-// const client = new pg.Client(connectionString);
-// client.ssl = true;
-// client.connect();
-// console.log("********** server.js ************");
-// console.log(appEnv);
-// console.log(connectionString);
 // Local dependencies
 const middleware = [
   // require('./lib/middleware/authentication/authentication.js'),
@@ -35,6 +24,8 @@ const packageJson = require('./package.json')
 const routes = require('./app/routes.js')
 const utils = require('./lib/utils.js')
 const extensions = require('./lib/extensions/extensions.js')
+
+
 
 // Variables for v6 backwards compatibility
 // Set false by default, then turn on if we find /app/v6/routes.js

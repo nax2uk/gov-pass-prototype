@@ -1,8 +1,8 @@
 ---
 applications:
-- name: gov-uk-prototype
+- name: azlina-sfc-app
   services:
-  - pg-skills-for-care
+  - azlina-pg-service
   command: node start.js
   memory: 256M
   buildpacks:

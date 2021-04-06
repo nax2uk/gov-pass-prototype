@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const config = require('./config');
+//const pg = require('pg');
+//const db = new pg.Client({ connectionString:process.env.DATABASE_URL, ssl: true });
+const db = require("../db/connection");
 
-const pg = require('pg');
-// const db = new pg.Client({ connectionString:process.env.DATABASE_URL, ssl: true });
-
+console.log(`NODE_ENV is ${process.env.NODE_ENV}`);
 const AmazonCognitoIdentity = require('amazon-cognito-identity-js');
 const poolData = {
   UserPoolId: config.cognito.userPoolId,
@@ -18,7 +19,7 @@ AWS.config.update({
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   region: process.env.AWS_DEFAULT_REGION,
 });
-
+let cognitoUser, username;
 // db
 // .connect()
 // .then(() => console.log('connected'))
@@ -42,18 +43,18 @@ const createCredentials = (idToken) => {
 }
 /* home endpoint */
 router.get('/', function(req, res) {
-    // db
-    // .query('SELECT * FROM public.register')
-    // .then(result => res.render('index', { 'registers': result.rows }))
-    // .catch(error => console.error(error.stack));
+    db('users')
+    .select('*')
+    .then((usersArray)=>res.render('index', { 'users': usersArray}))
+    .catch(error => console.error(error.stack));
 });
 
 router.post("/", function(req, res){
   const { first_name, last_name, email } = req.body;
-  // db
-  // .query(`INSERT INTO public.register (first_name, last_name, email) VALUES ($1, $2, $3)`, [first_name, last_name, email])
-  // .then(() => res.redirect("/"))
-  // .catch(err => console.error(err.stack));
+  db('users')
+  .insert({ first_name, last_name, email })
+  .then(() => res.redirect("/"))
+  .catch(err => console.error(err.stack));
 })
 
 /* sign-up endpoint */
@@ -96,8 +97,22 @@ router.post("/sign-up", function (req, res) {
   })
 })
 
+/* sign out endpoint */
+router.post("/sign-out", function(req, res){
+  if (cognitoUser != null) {
+    username = null;
+    cognitoUser.signOut();
+    res.redirect('/login')
+  }
+  console.log("You are not logged in")
+});
+
 /* login endpoint */
 router.post("/login", function(req, res){
+  //console.log(req)
+  if (cognitoUser) {
+    res.redirect(`/dashboard?username=${username}`)
+  }
   const loginDetails = {
     Username: req.body.email,
     Password: req.body.password
@@ -109,14 +124,15 @@ router.post("/login", function(req, res){
     Pool: userPool
   }
 
-  let cognitoUser = new AmazonCognitoIdentity.CognitoUser(userDetails);
+  cognitoUser = new AmazonCognitoIdentity.CognitoUser(userDetails);
 
 
   cognitoUser.authenticateUser(authenticationDetails, {
     onSuccess: data => {
-      console.log(data);
+      console.log(data.getIdToken().payload);
       createCredentials(data.getIdToken().getJwtToken());
-      res.redirect('/dashboard');
+      username = data.getIdToken().payload.email;
+      res.redirect(`/dashboard?username=${data.getIdToken().payload.email}`);
     },
     onFailure: err => {
       if (err.message == '200') {
@@ -142,8 +158,12 @@ router.post("/login", function(req, res){
       res.redirect('/sign-up');
     }
   })
+ 
 })
 
 /* dashboard endpoint */
-
+router.get('/dashboard', function(req, res) {
+  console.log(userPool.getCurrentUser())
+  res.render('dashboard', {'username': req.query.username})
+});
 module.exports = router

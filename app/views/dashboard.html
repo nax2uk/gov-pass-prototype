@@ -15,10 +15,12 @@
     <div class="govuk-grid-column-full">
 
       <h1 class="govuk-heading-xl">Spiking Amazon Cognito</h1>
-      <p> This is a spike for Amazon Cognito </p>
+      <p> Welcome {{ username }} </p>
       
-       <h2 class="govuk-heading-m">This is the dashboard</h2>
-
+      <h2 class="govuk-heading-m">This is the dashboard</h2>
+       <form action="/sign-out" method="post" novalidate>
+         <button class="govuk-button" data-module="govuk-button"> Sign Out </button>
+       </form>
     </div>
   </div>
 

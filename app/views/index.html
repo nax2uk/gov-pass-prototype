@@ -20,8 +20,8 @@
        <h2 class="govuk-heading-m">Staff details in database: </h2>
 
       <ul class="govuk-list govuk-list--bullet">
-        {% for register in registers %}
-        <li>staff id: {{ register.staff_id }}, first name: {{ register.first_name }}, last name: {{ register.last_name }}, email: {{ register.email }}</li>
+        {% for user in users %}
+        <li>staff id: {{ user.id }}, first name: {{ user.first_name }}, last name: {{ user.last_name }}, email: {{ user.email }}</li>
         {% endfor %}
       </ul>
     </div>
